@@ -1,0 +1,226 @@
+---
+title: "Project Analysis"
+author: "Katie Whisnant"
+output: html_notebook
+---
+
+```{r Loading in libraries}
+library(tidyverse)
+library(ez)
+```
+Loading in all output files
+```{r Loading in all output files}
+data1 <- read.csv("project_data.csv", header = TRUE)
+data2 <- read.csv("Katie_project_data.csv", header = TRUE)
+data3 <- read.csv("Katie.csv", header = TRUE)
+data4 <- read.csv("project_data_2.csv", header = TRUE)
+data <- rbind(data1, data2, data3, data4)
+```
+Removing Headers
+```{r Removing headers}
+data[data == "PID"] <- NA;
+data <- drop_na(data)
+```
+Changing string Correct values to bools
+```{r Changing string Correct values to bools}
+for (idx in 1:length(data$Correct.)) { #goes through all values in the dataset
+  if (data$Correct.[idx] == "True") { #if value == True, it changes it to TRUE
+    data$Correct.[idx] <- TRUE
+  }
+  else if (data$Correct.[idx] == "False") { #if value == False, it changes it to FALSE
+    data$Correct.[idx] <- FALSE
+  }
+}
+```
+Some values uploaded as TRUE/FALSE and some uploaded as True/False so I have to fix them all to bools before I can filter them out.
+Filtering out incorrect response
+```{r Filtering out incorrect responses}
+data <- data[data$Correct == TRUE,]
+```
+Making equal numbers in PID column
+```{r Making equal numbers in PID column}
+for (idx in 1:length(data$PID)) { #goes through all values in the dataset
+  end_idx <- nchar(data$PID[idx])
+  if (end_idx == 9) { #if there are 9 numbers in the PID, substring will take only the last 3 values
+    num <- data$PID[idx]
+    data$PID[idx] <- substring(num, 7, 9)
+  }
+  else if (end_idx == 4) { #if there are 4 numbers in the PID, substring will take only the last 3 values
+    num <- data$PID[idx]
+    data$PID[idx] <- substring(num, 2, 4)
+    }
+} #if the PID is only 3 numbers long then it will skip it
+```
+Separating the two participants with 379 as PID
+```{r Separating the two participants with 379 as PID}
+rownames(data) <- NULL
+data[618:742,1] <- 380
+```
+Getting rid of Animals and Words conditions
+```{r Getting rid of Animals and Words conditions}
+data <- data[data$Section != 'words',]
+data <- data[data$Section != 'animals',]
+```
+Making RT a numeric variable
+```{r Making RT a numeric variable}
+#I have no clue why but it's not registering RT as a numeric variable
+data$RT <- as.numeric(data$RT)
+```
+Filtering out slow or fast response times
+```{r Filtering out slow or fast response times}
+data <- data[data$RT > .2,]
+data <- data[data$RT < 2,]
+```
+Getting unique PID values
+```{r Getting unique PID values}
+PIDs <- unique(data$PID)
+PIDs
+```
+Creating dataframes for each particpant
+```{r Creating dataframes for each particpant}
+df1 <- data[data$PID == PIDs[1],]
+df2 <- data[data$PID == PIDs[2],]
+df3 <- data[data$PID == PIDs[3],]
+df4 <- data[data$PID == PIDs[4],]
+df5 <- data[data$PID == PIDs[5],]
+df6 <- data[data$PID == PIDs[6],]
+df7 <- data[data$PID == PIDs[7],]
+df8 <- data[data$PID == PIDs[8],]
+df9 <- data[data$PID == PIDs[9],]
+df10 <- data[data$PID == PIDs[10],]
+df11 <- data[data$PID == PIDs[11],]
+df12 <- data[data$PID == PIDs[12],]
+df13 <- data[data$PID == PIDs[13],]
+df14 <- data[data$PID == PIDs[14],]
+df15 <- data[data$PID == PIDs[15],]
+```
+Getting average reaction times per section
+```{r Getting average reaction times per section}
+d1 <- df1 %>% group_by(Section) %>% summarize(avg = mean(RT))
+d2 <- df2 %>% group_by(Section) %>% summarize(avg = mean(RT))
+d3 <- df3 %>% group_by(Section) %>% summarize(avg = mean(RT))
+d4 <- df4 %>% group_by(Section) %>% summarize(avg = mean(RT))
+d5 <- df5 %>% group_by(Section) %>% summarize(avg = mean(RT))
+d6 <- df6 %>% group_by(Section) %>% summarize(avg = mean(RT))
+d7 <- df7 %>% group_by(Section) %>% summarize(avg = mean(RT))
+d8 <- df8 %>% group_by(Section) %>% summarize(avg = mean(RT))
+d9 <- df9 %>% group_by(Section) %>% summarize(avg = mean(RT))
+d10 <- df10 %>% group_by(Section) %>% summarize(avg = mean(RT))
+d11 <- df11 %>% group_by(Section) %>% summarize(avg = mean(RT))
+d12 <- df12 %>% group_by(Section) %>% summarize(avg = mean(RT))
+d13 <- df13 %>% group_by(Section) %>% summarize(avg = mean(RT))
+d14 <- df14 %>% group_by(Section) %>% summarize(avg = mean(RT))
+d15 <- df15 %>% group_by(Section) %>% summarize(avg = mean(RT))
+```
+Making final data frame
+```{r Making final data frame}
+df1 <- data.frame(PID = df1$PID[1:2], Pets = df1$Pets[1:2], Allergy = df1$Allergy[1:2], Section = d1$Section, RT = d1$avg)
+df2 <- data.frame(PID = df2$PID[1:2], Pets = df2$Pets[1:2], Allergy = df2$Allergy[1:2], Section = d2$Section, RT = d2$avg)
+df3 <- data.frame(PID = df3$PID[1:2], Pets = df3$Pets[1:2], Allergy = df3$Allergy[1:2], Section = d3$Section, RT = d3$avg)
+df4 <- data.frame(PID = df4$PID[1:2], Pets = df4$Pets[1:2], Allergy = df4$Allergy[1:2], Section = d4$Section, RT = d4$avg)
+df5 <- data.frame(PID = df5$PID[1:2], Pets = df5$Pets[1:2], Allergy = df5$Allergy[1:2], Section = d5$Section, RT = d5$avg)
+df6 <- data.frame(PID = df6$PID[1:2], Pets = df6$Pets[1:2], Allergy = df6$Allergy[1:2], Section = d6$Section, RT = d6$avg)
+df7 <- data.frame(PID = df7$PID[1:2], Pets = df7$Pets[1:2], Allergy = df7$Allergy[1:2], Section = d7$Section, RT = d7$avg)
+df8 <- data.frame(PID = df8$PID[1:2], Pets = df8$Pets[1:2], Allergy = df8$Allergy[1:2], Section = d8$Section, RT = d8$avg)
+df9 <- data.frame(PID = df9$PID[1:2], Pets = df9$Pets[1:2], Allergy = df9$Allergy[1:2], Section = d9$Section, RT = d9$avg)
+df10 <- data.frame(PID = df10$PID[1:2], Pets = df10$Pets[1:2], Allergy = df10$Allergy[1:2], Section = d10$Section, RT = d10$avg)
+df11 <- data.frame(PID = df11$PID[1:2], Pets = df11$Pets[1:2], Allergy = df11$Allergy[1:2], Section = d11$Section, RT = d11$avg)
+df12 <- data.frame(PID = df12$PID[1:2], Pets = df12$Pets[1:2], Allergy = df12$Allergy[1:2], Section = d12$Section, RT = d12$avg)
+df13 <- data.frame(PID = df13$PID[1:2], Pets = df13$Pets[1:2], Allergy = df13$Allergy[1:2], Section = d13$Section, RT = d13$avg)
+df14 <- data.frame(PID = df14$PID[1:2], Pets = df14$Pets[1:2], Allergy = df14$Allergy[1:2], Section = d14$Section, RT = d14$avg)
+df15 <- data.frame(PID = df15$PID[1:2], Pets = df15$Pets[1:2], Allergy = df15$Allergy[1:2], Section = d15$Section, RT = d15$avg)
+final_df <- rbind(df1, df2, df3, df4, df5, df6, df7, df8, df9, df10, df11, df12, df13, df14, df15)
+final_df
+```
+Creating dataframe with each participant in one row
+```{r Creating dataframe with each participant in one row}
+wide_df <- pivot_wider(final_df, names_from = Section, values_from = RT)
+wide_df
+```
+To see if people are faster at the expected pairing of good+dog vs the unexpected pairing of good+cat and if there are any moderators between this relationship, I will use an unpaired repeated measures ANOVA. This test will allow me to compare every participants' data on the two variations of this task to see if any relationship is significant.
+Factoring data
+```{r Factoring data}
+final_df$PID = factor(final_df$PID)
+final_df$Section = factor(final_df$Section)
+final_df$Allergy = factor(final_df$Allergy)
+final_df$Pets = factor(final_df$Pets)
+```
+Running a repeated measures ANOVA
+```{r Running a repeated measures ANOVA}
+model <- ezANOVA(data = final_df, dv = .(RT), wid = .(PID), within = .(Section), between = .(Allergy, Pets))
+print(model)
+```
+Since one or more cells is missing data, I used ezDesign to check the data like suggested.
+Running ezDesign
+```{r Running ezDesign}
+allergy_counts <- ezDesign(data = final_df, x = Section, y = Allergy, col = PID)
+pet_counts <- ezDesign(data = final_df, x = Section, y = Pets, col = PID)
+
+ggsave("allergy_counts.png", allergy_counts, height = 6, width = 8)
+ggsave("pet_counts.png", pet_counts, height = 6, width = 8)
+
+allergy_counts
+pet_counts
+```
+
+These graphs show that the Allergy column only has three values while the Pets sections has four. Since this is the case, I will run two separate ezANOVAs to compare the results of my experiment with both Pets and Allergies.
+Running a repeated measures ANOVA with Allergy column
+```{r Running a repeated measures ANOVA with Allergy column}
+allergy_model <- ezANOVA(data = final_df, dv = .(RT), wid = .(PID), within = .(Section), between = .(Allergy))
+print(allergy_model)
+```
+Running a repeated measures ANOVA with Allergy column
+```{r Running a repeated measures ANOVA with Pet column}
+pet_model <- ezANOVA(data = final_df, dv = .(RT), wid = .(PID), within = .(Section), between = .(Pets))
+print(pet_model)
+```
+As shown by both ANOVAs, there are no moderators in the relationship between the expected pairing of good+dog vs the unexpected pairing of good+cat. The p-values are all very far above .05, so there is no significance in this relationship. Just to see if the results are any different, I will also perform a repeated measures ANOVA with no between variables.
+Running a repeated measures ANOVA take two
+```{r Running a repeated measures ANOVA take two}
+model <- ezANOVA(data = final_df, dv = RT, wid = PID, within = Section)
+print(model)
+```
+Similar to the separate ANOVAs provided above, this model also shows no significance because the p-value is above the significance level of .05. Therefore, my participants as a group are not biased when associating cats and dogs with positive and negative words.
+As noted in the rubric, I will exclude Participant 900 and run the Pet ANOVA once again. Excluding this participant will allow for the pet column to be a little more balanced and maybe produce better results.
+```{r Excluding Participant 900}
+excluded_data <- final_df[final_df$PID != 900,]
+```
+Running a repeated measures ANOVA with Pet column again
+```{r Running a repeated measures ANOVA with Pet column again}
+excluded_data$Pets <- factor(excluded_data$Pets)
+excluded_data$PID <- factor(excluded_data$PID)
+pet_model <- ezANOVA(data = excluded_data, dv = .(RT), wid = .(PID), within = .(Section), between = .(Pets))
+print(pet_model)
+```
+As seen in this new model, the p-value is still not significant, therefore there are no moderators in the relationship between the expected and unexpected pairing.
+GRAPHS
+```{r}
+p <- ggplot(data = final_df, mapping = aes(x = Section, y = RT)) + 
+  geom_violin(fill = "lightblue") +
+  geom_boxplot(fill = "white", width = 0.3) +
+  theme_bw() + 
+  theme(legend.position = 'none')
+plot(p)
+
+ggsave("plot1.png", p, height = 5, width = 8)
+```
+I wanted to use this graph because it shows the distribution of the dataset. The violin plots show what reaction times people had to the images, and the box plots highlight the median, range, and interquartile range of the dataset. These two plots work together to provide a good summary of the data and how there are really no differences in between the two sections.
+```{r}
+p <- ggplot(data = final_df, mapping = aes(x = Section, y = RT, fill = Allergy)) + 
+  stat_summary(fun = 'mean', geom = 'bar', position = "dodge") + 
+  stat_summary(fun.data = mean_se, geom = 'errorbar', width = 0.3, position = position_dodge(width = 0.86))
+  theme(legend.position = 'none')
+plot(p)
+
+ggsave("plot2.png", p, height = 5, width = 8)
+```
+```{r}
+p <- ggplot(data = final_df, mapping = aes(x = Section, y = RT, fill = Pets)) + 
+  stat_summary(fun = 'mean', geom = 'bar', position = "dodge") + 
+  stat_summary(fun.data = mean_se, geom = 'errorbar', width = 0.3, position = position_dodge(width = 0.86))
+  theme(legend.position = 'none')
+plot(p)
+
+ggsave("plot3.png", p, height = 5, width = 8)
+```
+I chose to do bar plots as my extra graph because these bar plots describe the relationship of the possible moderators to the two sections of the IAT. They break reaction times down per group and show if there are any differences that aren't significant.
